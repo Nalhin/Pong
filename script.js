@@ -1,7 +1,7 @@
 const canvas = document.getElementById("c");
 const ctx = canvas.getContext("2d");
 
-let player, board;
+let ball, paddle, board;
 
 class Board {
     constructor(width, height, backgroundColor) {
@@ -16,7 +16,7 @@ class Board {
     }
 }
 
-class Player {
+class Ball {
     constructor(positionx, positiony, radious, color, dx, dy) {
         this.x = positionx;
         this.y = positiony;
@@ -25,7 +25,7 @@ class Player {
         this.dx = dx;
         this.dy = dy;
     }
-    drawPlayer() {
+    drawBall() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.r, 0, 2 * Math.PI);
         ctx.fillStyle = this.color;
@@ -35,37 +35,54 @@ class Player {
         this.x += this.dx;
         this.y += this.dy;
     }
-    checkCollision() {
-        this.x + this.r > board.width ? console.log("right") :
-            this.x - this.r < 0 ? console.log("left") :
-                this.y - this.r < 0 ? console.log("top") :
-                    this.y + this.r > board.height ? console.log("bottom") : null;
+    checkWallCollision() {
+        this.x + this.r > board.width ? this.dx=-this.dx :  //right
+            this.x - this.r < 0 ? this.dx=-this.dx :     //left
+                this.y - this.r < 0 ? this.dy=-this.dy :      //top
+                    this.y + this.r > board.height ? console.log("bottom") : null;  //bottom
+
+    }
+    checkPaddleCollision() {
+        (this.x > paddle.x && this.x + this.r <paddle.x + paddle.width) &&
+            (this.y > paddle.y && this.y < paddle.y + paddle.height) ?
+            this.dy=-this.dy : null;
 
     }
 }
 
 class Paddle {
-    constructor(positionx, positiony, width, height, color) {
-        this.x = positionx;
-        this.y = positiony;
+    constructor(width, height, color) {
         this.width = width;
         this.height = height;
+        this.x = (canvas.width - this.width) / 2;
+        this.y = canvas.height - this.height;
         this.color = color;
     }
-
+    drawPaddle() {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+    changePosition(dx) {
+        this.x + dx + this.width < canvas.width && this.x + dx > 0 ?
+            this.x += dx : null;
+    }
 }
 
 function gameLoop() {
     board.drawBoard();
-    player.drawPlayer();
-    player.changePosition();
-    player.checkCollision();
+    ball.drawBall();
+    ball.changePosition();
+    ball.checkWallCollision();
+    paddle.drawPaddle();
+    ball.checkPaddleCollision();
     window.requestAnimationFrame(gameLoop);
 }
 
 function newGame() {
-    player = new Player(20, 400, 10, 'black', 2, 2);
+    ball = new Ball(20, 400, 10, 'black', 2, 2);
     board = new Board(canvas.width, canvas.height, 'grey');
+    paddle = new Paddle(140, 20, 'black')
 
 }
 
@@ -75,13 +92,14 @@ window.requestAnimationFrame(gameLoop);
 window.addEventListener('keydown', (event) => {
     switch (event.keyCode) {
 
-        case 83:  //"s" key
-          //  peddle.changePosition();
+        case 68:  //'d' key
+        console.log('xd')
+            paddle.changePosition(8);
             break;
 
-        case 65:  //"a" key
-            peddle.changePosition();
-           // break;
+        case 65:  //'a' key
+            paddle.changePosition(-8);
+        // break;
         default:
             break;
     }
