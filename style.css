@@ -1,0 +1,9 @@
+body {
+    margin: 0 auto;
+    width:600px;
+    background-color: dimgrey;
+}
+
+canvas {
+    padding-top: 20px;
+}
